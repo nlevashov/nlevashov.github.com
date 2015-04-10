@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <title>ABBYY</title>
+  <link rel="stylesheet" href="css/bootstrap.min.css">
+  <link href="css/roboto.min.css" rel="stylesheet">
+  <link href="css/material.min.css" rel="stylesheet">
+  <link href="css/ripples.min.css" rel="stylesheet">
+  
+  <script src="js/jquery.min.js"></script>
+  <script src="js/bootstrap.min.js"></script>
+
+  <style type="text/css">
+    html, body {
+      width:100%;
+      height:100%;
+      overflow:hidden;
+    }
+    .div-table {
+      display: table;
+      width: 100%;
+    }
+    .div-table-row {
+      display: table-row;
+      width: auto;
+      clear: both;
+    }
+/*    .div-table-col {
+      display: table-column;
+      width: 45%;
+    }*/
+    .div-table-cell {
+      display: table-cell;
+    }
+
+    #header {
+      font-size: 3em;
+      text-align: center;
+    }
+
+    #human-resources {
+      float: left;
+    }
+    #human-resources #simple {
+      left: 7.5%;
+    }
+    #human-resources #current {
+      left: 2.5%;
+    }
+    #human-resources #next {
+      left: 5%;
+    }
+
+    #developers {
+      float: right;
+    }
+
+    #developers #simple {
+      right: 7.5%;
+    }
+    #developers #current {
+      right: 2.5%;
+    }
+    #developers #next {
+      right: 5%;
+    }
+
+    #panel-progress {
+      position: relative;
+      /*top:100px;*/
+      
+    }
+
+    #current {
+      z-index: 100;
+    }
+
+    #next {
+      z-index: 99;
+    }
+
+    #time-panel {
+      position: absolute;
+      z-index: 200;
+      padding: 10px;
+      text-align: center;
+      font-size: 3em;
+      top:10px;
+      left: 50%;
+      transform: translate(-50%, 0);
+    }
+    
+  </style>
+</head>
+
+<body>
+  <!-- <div class="btn-group"></div> -->
+  <div id="time-panel" class="panel panel-default">
+<!--     <div class="panel-body">
+        Basic panel
+    </div> -->
+  </div>
+
+  <div class="div-table" style="height:100%">
+    <div id="header" class="div-table-row">
+      <div class="div-table-cell" style="width:50%;padding:20px;">с HR-специалистами</div>
+      <div class="div-table-cell" style="width:50%;padding:20px;">с разработчиками</div>
+    </div>
+    <div class="div-table-row" style="height:100%">
+      <div class="div-table-cell" style="height:100%">
+      </div>
+      <div class="div-table-cell" style="height:100%">
+        <div id="panel-progress" class="slider svert" style="position:relative;left:0;margin-left:0;"></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="human-resources"></div>
+  <div id="developers"></div>
+
+  <script src="js/ripples.min.js"></script>
+  <script src="js/material.min.js"></script>
+  <script src="js/jquery.nouislider.all.min.js"></script>
+  <script>
+      $(document).ready(function() {
+          // This command is used to initialize some elements and make them work properly
+          $.material.init();
+      });
+  </script>
+
+  <script type="text/javascript">
+    function timeToMinutes(time) {
+      time = time.split(/:/);
+      return parseInt(time[0]) * 60 + parseInt(time[1]);
+    }
+    function minutesToTime(minutes) {
+      h = Math.floor(minutes / 60);
+      m = minutes - h * 60;
+      if (m < 10) {
+        return h + ':0' + m;
+      } else {
+        return h + ':' + m;
+      }
+    }
+    function secondsToTimeHours(seconds) {
+      h = Math.floor(seconds / 3600);
+      m = Math.floor((seconds - h * 3600) / 60);
+      s = seconds - h * 3600 - m * 60;
+      str = h + ':';
+      if (m < 10) {
+        str += '0';
+      }
+      str += m + ':'
+      if (s < 10) {
+        str += '0';
+      }
+      str += s;
+      return str;
+    }
+    function secondsToTime(seconds) {
+      m = Math.floor(seconds / 60);
+      s = seconds - m * 60;
+      str = m + ':';
+      if (s < 10) {
+        str += '0';
+      }
+      str += s;
+      return str;
+    }
+
+    function printWell(destination, panel_top, panel_height, time_start, time_end, block_name) {
+      $( "#" + destination ).append(
+        '<div id="simple" class="panel panel-default"' +
+          'style="width:35%;position:absolute;top:' + panel_top + 'px;height:' + panel_height + 'px;display:table;padding:10px 20px 0 20px;">' +
+          '<div class="panel-body" style="display:table-row;">' +
+            '<div style="display:table-cell;width:30%;"><b>' + time_start + ' - ' + time_end + '</b></div>' +
+            '<div  style="display:table-cell;text-align:center;">' + block_name + '</div>' +
+            '<div style="display:table-cell;text-align:right;width:33%;"></div>' +
+          '</div>' +
+        '</div>');
+    }
+    function printCurrentWell(destination, panel_top, panel_height, time_start, time_end, block_name, rest) {
+      $( "#" + destination ).append(
+        '<div id="current" class="panel panel-default" ' +
+          'style="width:45%;position:absolute;top:' + panel_top + 'px;height:' + panel_height + 'px;display:table;padding:0 20px;">' +
+          '<div class="panel-body" style="display:table-row;">' +
+            '<div style="display:table-cell;width:30%;"><h3><b>' + time_start + ' - ' + time_end + '</b></h3></div>' +
+            '<div  style="display:table-cell;text-align:center;"><h3>' + block_name + '</h3></div>' +
+            '<div style="display:table-cell;text-align:right;width:33%;"><h3>Осталось ' + rest + '</h3></div>' +
+          '</div>' +
+          '<div style="display:table-row;">' +
+            '<div id="panel-progress" class="slider shor slider-success" style="display:table-cell;position:absolute;left:0;right:0;bottom:-7px"></div>' +
+          '</div>' +
+        '</div>'
+        );
+    }
+    function printNextWell(destination, panel_top, panel_height, time_start, time_end, block_name, rest) {
+      $( "#" + destination ).append(
+        '<div id="next" class="panel panel-default" ' +
+          'style="width:40%;position:absolute;top:' + panel_top + 'px;height:' + panel_height + 'px;display:table;padding:10px 20px 0 20px;">' +
+          '<div class="panel-body" style="display:table-row;">' +
+            '<div style="display:table-cell;width:30%;"><h4><b>' + time_start + ' - ' + time_end + '</b></h4></div>' +
+            '<div  style="display:table-cell;text-align:center;"><h4>' + block_name + '</h4></div>' +
+            '<div style="display:table-cell;text-align:right;width:33%;"><h4>Через ' + rest + '</h4></div>' +
+          '</div>' +
+        '</div>');
+    }
+
+    //printWell("human-resources", '123123123123123123')
+
+    function draw() {
+
+      var currentdate = new Date();
+      var current_time_minutes = currentdate.getHours() * 60 + currentdate.getMinutes();// - 171;
+      var current_time_seconds = currentdate.getHours() * 3600 + currentdate.getMinutes() * 60 + currentdate.getSeconds();// - 171  * 60;
+      // console.log(current_time_minutes - timeToMinutes('13:00'))
+      // console.log(minutesToTime(current_time_minutes))
+
+
+      var start = '13:00';
+
+      var times_hr = ['13:10', '13:20', '13:30', '13:40', '13:50', '14:15', '14:25', '14:35', '14:45', '14:55', '15:05'];
+      var duration_hr = 8;
+      var current_hr = -1;
+      for (var i = 0; i < times_hr.length; i++ ) {
+        if ((timeToMinutes(times_hr[i]) <= current_time_minutes) && (current_time_minutes < timeToMinutes(times_hr[i]) + duration_hr)) {
+          current_hr = i;
+          break;
+        }
+      }
+      var next_hr = 0;
+      for (var i = 0; i < times_hr.length; i++ ) {
+        if (current_time_minutes < timeToMinutes(times_hr[i])) {
+          next_hr = i;
+          break;
+        }
+      }
+
+      var times_dev = ['13:00', '13:30', '14:15', '14:45', '15:15'];
+      var duration_dev = 25;
+      var current_dev = -1;
+      for (var i = 0; i < times_dev.length; i++ ) {
+        if ((timeToMinutes(times_dev[i]) <= current_time_minutes) && (current_time_minutes < timeToMinutes(times_dev[i]) + duration_dev)) {
+          current_dev = i;
+          break;
+        }
+      }
+      var next_dev = 0;
+      for (var i = 0; i < times_dev.length; i++ ) {
+        if (current_time_minutes < timeToMinutes(times_dev[i])) {
+          next_dev = i;
+          break;
+        }
+      }
+
+      var px_size = $( window ).height() / (60 * 3);
+
+      $( "#human-resources" ).html('');
+
+      for (var i = 0; i < times_hr.length; i++) {
+        panel_top = (timeToMinutes(times_hr[i]) - timeToMinutes(start)) * px_size + $( '#header' ).height();
+        panel_height = duration_hr * px_size
+        if (i == current_hr) {
+          panel_top -= 20;
+          panel_height += 40;
+          printCurrentWell("human-resources",
+                            panel_top,
+                            panel_height,
+                            times_hr[i],
+                            minutesToTime(timeToMinutes(times_hr[i]) + duration_hr),
+                            (i+1) + ' волна',
+                            secondsToTime((timeToMinutes(times_hr[i]) + duration_hr) * 60 - current_time_seconds)
+                            );
+        } else if (i == next_hr) {
+          panel_top -= 10;
+          panel_height += 20;
+          printNextWell("human-resources",
+                         panel_top,
+                         panel_height,
+                         times_hr[i],
+                         minutesToTime(timeToMinutes(times_hr[i]) + duration_hr),
+                         (i+1) + ' волна',
+                         secondsToTime(timeToMinutes(times_hr[i]) * 60 - current_time_seconds)
+                         );
+        } else {
+          printWell("human-resources",
+                     panel_top,
+                     panel_height,
+                     times_hr[i],
+                     minutesToTime(timeToMinutes(times_hr[i]) + duration_hr),
+                     (i+1) + ' волна'
+                     );
+        }
+      }
+
+      $( "#developers" ).html('');
+
+      for (var i = 0; i < times_dev.length; i++) {
+        panel_top = (timeToMinutes(times_dev[i]) - timeToMinutes(start)) * px_size + $( '#header' ).height();
+        panel_height = duration_dev * px_size
+        if (i == current_dev) {
+          panel_top -= 20;
+          panel_height += 40;
+          printCurrentWell("developers",
+                            panel_top,
+                            panel_height,
+                            times_dev[i],
+                            minutesToTime(timeToMinutes(times_dev[i]) + duration_dev),
+                            (i+1) + ' волна',
+                            secondsToTime((timeToMinutes(times_dev[i]) + duration_dev) * 60 - current_time_seconds)
+                            );
+        } else if (i == next_dev) {
+          panel_top -= 10;
+          panel_height += 20;
+          printNextWell("developers",
+                         panel_top,
+                         panel_height,
+                         times_dev[i],
+                         minutesToTime(timeToMinutes(times_dev[i]) + duration_dev),
+                         (i+1) + ' волна',
+                         secondsToTime(timeToMinutes(times_dev[i]) * 60 - current_time_seconds)
+                         );
+        } else {
+          printWell("developers",
+                     panel_top,
+                     panel_height,
+                     times_dev[i],
+                     minutesToTime(timeToMinutes(times_dev[i]) + duration_dev),
+                     (i+1) + ' волна'
+                     );
+        }
+      }
+
+      $( "#time-panel" ).html(secondsToTimeHours(current_time_seconds))
+
+      if (current_hr >= 0) {
+        $( "#human-resources .shor" ).noUiSlider({
+            start: current_time_seconds,
+            connect: "lower",
+            range: {
+                min: timeToMinutes(times_hr[current_hr]) * 60,
+                max: (timeToMinutes(times_hr[current_hr]) + duration_hr) * 60
+            }
+        });  
+      }
+      
+      if (current_dev >= 0) {
+        $( "#developers .shor" ).noUiSlider({
+            start: current_time_seconds,
+            connect: "lower",
+            range: {
+                min: timeToMinutes(times_dev[current_dev]) * 60,
+                max: (timeToMinutes(times_dev[current_dev]) + duration_dev) * 60
+            }
+        });  
+      }
+
+      $(".svert").noUiSlider({
+          orientation: "vertical",
+          start: (current_time_minutes - timeToMinutes(start)) * px_size,
+          connect: "lower",
+          range: {
+              min: 0,
+              max: $( window ).height() - $( '#header' ).height()
+          }
+      });
+
+    }
+
+    var timerId = setInterval(draw, 1000)
+
+    $(function() {
+        $.material.init();
+    });
+
+  </script>
+</body>
