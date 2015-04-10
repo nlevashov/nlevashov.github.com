@@ -67,10 +67,11 @@
       right: 5%;
     }
 
-    #panel-progress {
-      position: relative;
-      /*top:100px;*/
-      
+    .hole-progress {
+      position: absolute;
+      height: 200px;
+      left: 50%;
+      transform: translate(-50%, 0);
     }
 
     #current {
@@ -103,18 +104,15 @@
     </div> -->
   </div>
 
-  <div class="div-table" style="height:100%">
+  <div class="div-table">
     <div id="header" class="div-table-row">
       <div class="div-table-cell" style="width:50%;padding:20px 0 40px 0;">с HR-специалистами</div>
       <div class="div-table-cell" style="width:50%;padding:20px 0 40px 0;">с разработчиками</div>
     </div>
-    <div class="div-table-row" style="height:100%">
-      <div class="div-table-cell" style="height:100%">
-      </div>
-      <div class="div-table-cell" style="height:100%">
-        <div id="panel-progress" class="slider svert" style="position:relative;left:0;margin-left:0;"></div>
-      </div>
-    </div>
+  </div>
+
+  <div class="hole-progress">
+    <div id="panel-progress" class="slider svert"></div>
   </div>
 
   <div id="human-resources"></div>
@@ -213,19 +211,47 @@
 
     //printWell("human-resources", '123123123123123123')
 
+    var start = '13:00';
+    var maybeend = '15:40';
+    var times_hr = ['13:10', '13:20', '13:30', '13:40', '13:50', '14:15', '14:25', '14:35', '14:45', '14:55', '15:05', '15:15', '15:25', '15:35'];
+    var duration_hr = 8;
+    var times_dev = ['13:00', '13:30', '14:15', '14:45', '15:15'];
+    var duration_dev = 25;
+    var px_size = $( window ).height() / (60 * 3);
+
+    function init() {
+      px_size = $( window ).height() / (60 * 3);
+
+      var last_point = 0;
+      var last_hr = timeToMinutes(times_hr[times_hr.length - 1]) + duration_hr;
+      var last_dev = timeToMinutes(times_dev[times_dev.length - 1]) + duration_dev;
+      if (last_hr < last_dev) {
+        last_point = last_dev;
+      } else {
+        last_point = last_hr;
+      }
+      $( ".hole-progress" ).height((last_point - timeToMinutes(start)) * px_size);
+
+      console.log(timeToMinutes(start) * 60);
+      console.log(last_point * 60);
+
+      $( "#panel-progress" ).noUiSlider({
+          orientation: "vertical",
+          connect: "lower",
+          start: timeToMinutes(start) * 60 + 100,
+          range: {
+              min: timeToMinutes(start) * 60,
+              max: last_point * 60,
+          }
+      });
+    }
+
     function draw() {
 
       var currentdate = new Date();
-      var current_time_minutes = currentdate.getHours() * 60 + currentdate.getMinutes();// - 6 * 60;
-      var current_time_seconds = currentdate.getHours() * 3600 + currentdate.getMinutes() * 60 + currentdate.getSeconds();// - 6 * 60  * 60;
-      // console.log(current_time_minutes - timeToMinutes('13:00'))
-      // console.log(minutesToTime(current_time_minutes))
+      var current_time_minutes = currentdate.getHours() * 60 + currentdate.getMinutes();// - 8 * 60 + 1;
+      var current_time_seconds = currentdate.getHours() * 3600 + currentdate.getMinutes() * 60 + currentdate.getSeconds();// - 8 * 60 * 60 + 60;
 
-
-      var start = '13:00';
-
-      var times_hr = ['13:10', '13:20', '13:30', '13:40', '13:50', '14:15', '14:25', '14:35', '14:45', '14:55', '15:05'];
-      var duration_hr = 8;
       var current_hr = -1;
       for (var i = 0; i < times_hr.length; i++ ) {
         if ((timeToMinutes(times_hr[i]) <= current_time_minutes) && (current_time_minutes < timeToMinutes(times_hr[i]) + duration_hr)) {
@@ -241,8 +267,6 @@
         }
       }
 
-      var times_dev = ['13:00', '13:30', '14:15', '14:45', '15:15'];
-      var duration_dev = 25;
       var current_dev = -1;
       for (var i = 0; i < times_dev.length; i++ ) {
         if ((timeToMinutes(times_dev[i]) <= current_time_minutes) && (current_time_minutes < timeToMinutes(times_dev[i]) + duration_dev)) {
@@ -257,8 +281,6 @@
           break;
         }
       }
-
-      var px_size = $( window ).height() / (60 * 3);
 
       $( "#human-resources" ).html('');
 
@@ -360,23 +382,26 @@
         });  
       }
 
-      $(".svert").noUiSlider({
-          orientation: "vertical",
-          start: (current_time_minutes - timeToMinutes(start)) * px_size,
-          connect: "lower",
-          range: {
-              min: 0,
-              max: $( window ).height() - $( '#header' ).height()
-          }
-      });
+
+      $( "#panel-progress" ).val(current_time_seconds);
+      
+      console.log(current_time_seconds + '  ' + $( "#panel-progress" ).val());
 
     }
-
-    var timerId = setInterval(draw, 1000)
 
     $(function() {
         $.material.init();
     });
+
+    $( document ).ready(function() {
+      init();
+      var timerId = setInterval(draw, 1000);
+    })
+    
+    $( window ).resize(function() {
+      init();
+    });
+
 
   </script>
 </body>
