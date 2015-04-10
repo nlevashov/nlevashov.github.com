@@ -105,8 +105,8 @@
 
   <div class="div-table" style="height:100%">
     <div id="header" class="div-table-row">
-      <div class="div-table-cell" style="width:50%;padding:20px;">с HR-специалистами</div>
-      <div class="div-table-cell" style="width:50%;padding:20px;">с разработчиками</div>
+      <div class="div-table-cell" style="width:50%;padding:20px 0 40px 0;">с HR-специалистами</div>
+      <div class="div-table-cell" style="width:50%;padding:20px 0 40px 0;">с разработчиками</div>
     </div>
     <div class="div-table-row" style="height:100%">
       <div class="div-table-cell" style="height:100%">
@@ -197,6 +197,9 @@
         );
     }
     function printNextWell(destination, panel_top, panel_height, time_start, time_end, block_name, rest) {
+      if (rest[0] == '-') {
+        rest = "~ 1 год";
+      }
       $( "#" + destination ).append(
         '<div id="next" class="panel panel-default" ' +
           'style="width:40%;position:absolute;top:' + panel_top + 'px;height:' + panel_height + 'px;display:table;padding:10px 20px 0 20px;">' +
@@ -213,8 +216,8 @@
     function draw() {
 
       var currentdate = new Date();
-      var current_time_minutes = currentdate.getHours() * 60 + currentdate.getMinutes();// - 171;
-      var current_time_seconds = currentdate.getHours() * 3600 + currentdate.getMinutes() * 60 + currentdate.getSeconds();// - 171  * 60;
+      var current_time_minutes = currentdate.getHours() * 60 + currentdate.getMinutes();// - 6 * 60;
+      var current_time_seconds = currentdate.getHours() * 3600 + currentdate.getMinutes() * 60 + currentdate.getSeconds();// - 6 * 60  * 60;
       // console.log(current_time_minutes - timeToMinutes('13:00'))
       // console.log(minutesToTime(current_time_minutes))
 
