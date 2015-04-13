@@ -146,10 +146,26 @@
   </script>
 
   <script type="text/javascript">
+    function setCookie(cname, cvalue) {
+      document.cookie = cname + "=" + cvalue;
+    }
+
+    function getCookie(cname) {
+      var name = cname + "=";
+      var ca = document.cookie.split(';');
+      for(var i=0; i<ca.length; i++) {
+        var c = ca[i];
+        while (c.charAt(0)==' ') c = c.substring(1);
+        if (c.indexOf(name) != -1) return c.substring(name.length,c.length);
+      }
+      return "";
+    }
+
     function timeToMinutes(time) {
       time = time.split(/:/);
       return parseInt(time[0]) * 60 + parseInt(time[1]);
     }
+
     function minutesToTime(minutes) {
       h = Math.floor(minutes / 60);
       m = minutes - h * 60;
@@ -159,6 +175,7 @@
         return h + ':' + m;
       }
     }
+
     function secondsToTimeHours(seconds) {
       h = Math.floor(seconds / 3600);
       m = Math.floor((seconds - h * 3600) / 60);
@@ -174,6 +191,7 @@
       str += s;
       return str;
     }
+
     function secondsToTime(seconds) {
       m = Math.floor(seconds / 60);
       s = seconds - m * 60;
@@ -234,14 +252,28 @@
     var times_hr = ['13:10', '13:20', '13:30', '13:40', '13:50', '14:15', '14:25', '14:35', '14:45', '14:55', '15:05', '15:15', '15:25', '15:35'];
     var values_hr = []
     for (var i = 0; i < times_hr.length; i++) {
-      values_hr.push((i + 1) + ' волна');
+      block_name = (i + 1) + ' волна';
+      cookie_name = 'hr_' + i;
+      if (getCookie(cookie_name)) {
+        values_hr.push(getCookie(cookie_name));
+      } else {
+        setCookie(cookie_name, block_name);
+        values_hr.push(block_name);
+      }
     }
 
     var duration_dev = 25;
     var times_dev = ['13:00', '13:30', '14:15', '14:45', '15:15'];
     var values_dev = []
     for (var i = 0; i < times_dev.length; i++) {
-      values_dev.push((i + 1) + ' волна');
+      block_name = (i + 1) + ' волна';
+      cookie_name = 'dev_' + i;
+      if (getCookie(cookie_name)) {
+        values_dev.push(getCookie(cookie_name));
+      } else {
+        setCookie(cookie_name, block_name);
+        values_dev.push(block_name);
+      }
     }
 
     var px_size = $( window ).height() / (60 * 3);
@@ -409,13 +441,15 @@
 
       $( "#panel-progress" ).val(current_time_seconds);
 
-      $( "input" ).keydown(function( event ) {
+      $( "input" ).keyup(function( event ) {
         var k = 0;
         $( "input" ).each(function( index ) {
           if (k < values_hr.length) {
             values_hr[k] = $( "input" ).eq( index ).val();
+            setCookie('hr_' + k, values_hr[k]);
           } else {
             values_dev[k - values_hr.length] = $( "input" ).eq( index ).val();
+            setCookie('dev_' + (k - values_hr.length), values_dev[k - values_hr.length]);
           }
           k++;
         });
