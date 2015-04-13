@@ -92,7 +92,22 @@
       left: 50%;
       transform: translate(-50%, 0);
     }
+
+    input {
+      border: 0;
+      text-align: center;
+    }
     
+    #on-off {
+      position: absolute;
+      right: 0;
+      top: 0;
+    }
+
+    #on-off i {
+      font-size: 40px;
+    }
+
   </style>
 </head>
 
@@ -110,6 +125,8 @@
       <div class="div-table-cell" style="width:50%;padding:20px 0 40px 0;">с разработчиками</div>
     </div>
   </div>
+
+  <a id="on-off" href="#" onclick="stopProgress()"><i class="mdi-content-create"></i></a>
 
   <div class="hole-progress">
     <div id="panel-progress" class="slider svert"></div>
@@ -174,7 +191,7 @@
           'style="width:35%;position:absolute;top:' + panel_top + 'px;height:' + panel_height + 'px;display:table;padding:10px 20px 0 20px;">' +
           '<div class="panel-body" style="display:table-row;">' +
             '<div style="display:table-cell;width:30%;"><b>' + time_start + ' - ' + time_end + '</b></div>' +
-            '<div  style="display:table-cell;text-align:center;">' + block_name + '</div>' +
+            '<div  style="display:table-cell;text-align:center;"><input type="text" value="' + block_name + '"></div>' +
             '<div style="display:table-cell;text-align:right;width:33%;"></div>' +
           '</div>' +
         '</div>');
@@ -185,7 +202,7 @@
           'style="width:45%;position:absolute;top:' + panel_top + 'px;height:' + panel_height + 'px;display:table;padding:0 20px;">' +
           '<div class="panel-body" style="display:table-row;">' +
             '<div style="display:table-cell;width:30%;"><h3><b>' + time_start + ' - ' + time_end + '</b></h3></div>' +
-            '<div  style="display:table-cell;text-align:center;"><h3>' + block_name + '</h3></div>' +
+            '<div  style="display:table-cell;text-align:center;"><h3><input type="text" value="' + block_name + '"></h3></div>' +
             '<div style="display:table-cell;text-align:right;width:33%;"><h3>Осталось ' + rest + '</h3></div>' +
           '</div>' +
           '<div style="display:table-row;">' +
@@ -203,7 +220,7 @@
           'style="width:40%;position:absolute;top:' + panel_top + 'px;height:' + panel_height + 'px;display:table;padding:10px 20px 0 20px;">' +
           '<div class="panel-body" style="display:table-row;">' +
             '<div style="display:table-cell;width:30%;"><h4><b>' + time_start + ' - ' + time_end + '</b></h4></div>' +
-            '<div  style="display:table-cell;text-align:center;"><h4>' + block_name + '</h4></div>' +
+            '<div  style="display:table-cell;text-align:center;"><h4><input type="text" value="' + block_name + '"></h4></div>' +
             '<div style="display:table-cell;text-align:right;width:33%;"><h4>Через ' + rest + '</h4></div>' +
           '</div>' +
         '</div>');
@@ -212,11 +229,21 @@
     //printWell("human-resources", '123123123123123123')
 
     var start = '13:00';
-    var maybeend = '15:40';
-    var times_hr = ['13:10', '13:20', '13:30', '13:40', '13:50', '14:15', '14:25', '14:35', '14:45', '14:55', '15:05', '15:15', '15:25', '15:35'];
+
     var duration_hr = 8;
-    var times_dev = ['13:00', '13:30', '14:15', '14:45', '15:15'];
+    var times_hr = ['13:10', '13:20', '13:30', '13:40', '13:50', '14:15', '14:25', '14:35', '14:45', '14:55', '15:05', '15:15', '15:25', '15:35'];
+    var values_hr = []
+    for (var i = 0; i < times_hr.length; i++) {
+      values_hr.push((i + 1) + ' волна');
+    }
+
     var duration_dev = 25;
+    var times_dev = ['13:00', '13:30', '14:15', '14:45', '15:15'];
+    var values_dev = []
+    for (var i = 0; i < times_dev.length; i++) {
+      values_dev.push((i + 1) + ' волна');
+    }
+
     var px_size = $( window ).height() / (60 * 3);
 
     function init() {
@@ -231,9 +258,6 @@
         last_point = last_hr;
       }
       $( ".hole-progress" ).height((last_point - timeToMinutes(start)) * px_size);
-
-      console.log(timeToMinutes(start) * 60);
-      console.log(last_point * 60);
 
       $( "#panel-progress" ).noUiSlider({
           orientation: "vertical",
@@ -295,7 +319,7 @@
                             panel_height,
                             times_hr[i],
                             minutesToTime(timeToMinutes(times_hr[i]) + duration_hr),
-                            (i+1) + ' волна',
+                            values_hr[i],
                             secondsToTime((timeToMinutes(times_hr[i]) + duration_hr) * 60 - current_time_seconds)
                             );
         } else if (i == next_hr) {
@@ -306,7 +330,7 @@
                          panel_height,
                          times_hr[i],
                          minutesToTime(timeToMinutes(times_hr[i]) + duration_hr),
-                         (i+1) + ' волна',
+                         values_hr[i],
                          secondsToTime(timeToMinutes(times_hr[i]) * 60 - current_time_seconds)
                          );
         } else {
@@ -315,7 +339,7 @@
                      panel_height,
                      times_hr[i],
                      minutesToTime(timeToMinutes(times_hr[i]) + duration_hr),
-                     (i+1) + ' волна'
+                     values_hr[i]
                      );
         }
       }
@@ -333,7 +357,7 @@
                             panel_height,
                             times_dev[i],
                             minutesToTime(timeToMinutes(times_dev[i]) + duration_dev),
-                            (i+1) + ' волна',
+                            values_dev[i],
                             secondsToTime((timeToMinutes(times_dev[i]) + duration_dev) * 60 - current_time_seconds)
                             );
         } else if (i == next_dev) {
@@ -344,7 +368,7 @@
                          panel_height,
                          times_dev[i],
                          minutesToTime(timeToMinutes(times_dev[i]) + duration_dev),
-                         (i+1) + ' волна',
+                         values_dev[i],
                          secondsToTime(timeToMinutes(times_dev[i]) * 60 - current_time_seconds)
                          );
         } else {
@@ -353,7 +377,7 @@
                      panel_height,
                      times_dev[i],
                      minutesToTime(timeToMinutes(times_dev[i]) + duration_dev),
-                     (i+1) + ' волна'
+                     values_dev[i]
                      );
         }
       }
@@ -384,9 +408,29 @@
 
 
       $( "#panel-progress" ).val(current_time_seconds);
-      
-      console.log(current_time_seconds + '  ' + $( "#panel-progress" ).val());
 
+      $( "input" ).keydown(function( event ) {
+        var k = 0;
+        $( "input" ).each(function( index ) {
+          if (k < values_hr.length) {
+            values_hr[k] = $( "input" ).eq( index ).val();
+          } else {
+            values_dev[k - values_hr.length] = $( "input" ).eq( index ).val();
+          }
+          k++;
+        });
+      });
+
+    }
+
+    var on_off = true;
+    function stopProgress() {
+      on_off = !on_off;
+      if (on_off) {
+        $( "#on-off" ).html('<i class="mdi-content-create"></i>');
+      } else {
+        $( "#on-off" ).html('<i class="mdi-av-play-arrow"></i>');
+      }
     }
 
     $(function() {
@@ -395,13 +439,35 @@
 
     $( document ).ready(function() {
       init();
-      var timerId = setInterval(draw, 1000);
-    })
+      var timerId = setInterval(function() {
+        if (on_off) {
+          draw();
+        }
+      }, 1000);
+    });
     
     $( window ).resize(function() {
       init();
     });
 
+    // $( document ).ready(function() {
+    //   $( "input" ).keydown(function() {
+    //     alert( "Handler for .keydown() called." );
+    //   });
+    // });
+
+    // $( "input" ).keydown(function( event ) {
+    //   var k = 0;
+    //   alert('asdas');
+    //   $( "input" ).each(function() {
+    //     if (k < values_hr.length) {
+    //       values_hr[k] = event.target.value;
+    //     } else {
+    //       values_dev[k - values_hr.length] = event.target.value
+    //     }
+    //     k++;
+    //   });
+    // });
 
   </script>
 </body>
